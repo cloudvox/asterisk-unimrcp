@@ -1538,6 +1538,7 @@ static int app_synthandrecog_exec(struct ast_channel *chan, ast_app_data data)
 					f = ast_read(chan);
 					if (!f) {
 						ast_log(LOG_DEBUG, "(%s) ast_waitstream failed on %s, channel read is a null frame. Hangup detected\n", recog_name, ast_channel_name(chan));
+						speech_channel_stop(sar_session.synth_channel);
 						return synthandrecog_exit(chan, &sar_session, SPEECH_CHANNEL_STATUS_INTERRUPTED);
 					}
 					ast_frfree(f);
@@ -1552,12 +1553,14 @@ static int app_synthandrecog_exec(struct ast_channel *chan, ast_app_data data)
 				ms = ast_waitfor(chan, 100);
 				if (ms < 0) {
 					ast_log(LOG_DEBUG, "(%s) Hangup detected\n", recog_name);
+					speech_channel_stop(sar_session.synth_channel);
 					return synthandrecog_exit(chan, &sar_session, SPEECH_CHANNEL_STATUS_INTERRUPTED);
 				}
 
 				f = ast_read(chan);
 				if (!f) {
 					ast_log(LOG_DEBUG, "(%s) Null frame. Hangup detected\n", recog_name);
+					speech_channel_stop(sar_session.synth_channel);
 					return synthandrecog_exit(chan, &sar_session, SPEECH_CHANNEL_STATUS_INTERRUPTED);
 				}
 
@@ -1698,6 +1701,7 @@ static int app_synthandrecog_exec(struct ast_channel *chan, ast_app_data data)
 		f = ast_read(chan);
 		if (!f) {
 			ast_log(LOG_DEBUG, "(%s) Null frame. Hangup detected\n", recog_name);
+			speech_channel_stop(sar_session.synth_channel);
 			status = SPEECH_CHANNEL_STATUS_INTERRUPTED;
 			break;
 		}
